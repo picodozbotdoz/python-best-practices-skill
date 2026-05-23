@@ -1,0 +1,163 @@
+# Ruff Configuration — Production-Ready Template
+# Enhanced from jtgsystems/PYTHON-BEST-PRACTICES-2025
+# Adapted for Python 3.12+ (our environment baseline)
+#
+# USAGE: Copy relevant sections into your project's pyproject.toml
+# Or use as standalone ruff.toml in project root
+
+[tool.ruff]
+target-version = "py312"        # Our baseline — change per project
+line-length = 88                # Black-compatible default
+indent-width = 4
+
+exclude = [
+    ".bzr", ".direnv", ".eggs", ".git", ".hg", ".mypy_cache",
+    ".nox", ".pants.d", ".pytype", ".ruff_cache", ".svn", ".tox",
+    ".venv", "__pypackages__", "_build", "buck-out", "build",
+    "dist", "node_modules", "venv", "migrations", "alembic/versions",
+]
+
+[tool.ruff.lint]
+# Core rules — safe for all projects
+select = [
+    "F",      # Pyflakes — unused imports, undefined names
+    "E", "W", # pycodestyle — style errors/warnings
+    "I",      # isort — import sorting
+    "N",      # pep8-naming
+    "UP",     # pyupgrade — modernize syntax for target version
+    "B",      # flake8-bugbear — common bugs
+    "S",      # flake8-bandit — security issues
+    "C4",     # flake8-comprehensions — comprehension improvements
+    "SIM",    # flake8-simplify — simplifiable logic
+    "T20",    # flake8-print — flag stray prints (disable for CLI tools)
+    "RET",    # flake8-return — unnecessary return/else
+    "PTH",    # flake8-use-pathlib — prefer pathlib over os.path
+    "PGH",    # pygrep-hooks — blanket noqa/type:ignore
+    "PL",     # Pylint — broad bug detection
+    "PERF",   # Perflint — performance anti-patterns
+    "RUF",    # Ruff-specific rules
+]
+
+# Optional: enable for strict projects
+# "D",      # pydocstyle — docstring conventions (noisy for scripts)
+# "ANN",    # flake8-annotations — require type hints (strict)
+# "TCH",    # flake8-type-checking — move imports to TYPE_CHECKING blocks
+# "ARG",    # flake8-unused-arguments — unused function args
+# "ERA",    # eradicate — commented-out code
+
+ignore = [
+    # Docstrings — too noisy for scripts/tools, enable for libraries
+    "D100", "D101", "D102", "D103", "D104", "D105", "D107",
+    # Type annotation exceptions
+    "ANN101", "ANN102", "ANN401",
+    # Allow assert in tests
+    "S101",
+    # Allow print (useful for CLI tools — disable T201 for libraries)
+    "T201",
+    # Allow boolean positional args (common pattern)
+    "FBT001", "FBT002", "FBT003",
+    # Too strict for most projects
+    "PLR0913",  # too many arguments
+    "PLR2004",  # magic value comparison
+    "PLR0912",  # too many branches
+    "PLR0915",  # too many statements
+    # Line length — let formatter handle it
+    "E501",
+    # Allow star imports in __init__.py
+    "F403", "F405",
+]
+
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+# Tests: relaxed rules
+"tests/**/*" = [
+    "S101",     # assert allowed
+    "PLR2004",  # magic values OK in tests
+    "TID252",   # relative imports from parent OK
+    "ANN001",   # no type hints required
+    "ANN201",   # no return type required
+    "D100", "D103",
+]
+# Migrations: skip all
+"**/migrations/*" = ["ALL"]
+"**/alembic/versions/*" = ["ALL"]
+# Scripts: relaxed
+"scripts/**/*" = ["T201", "S603", "PLR2004"]
+# conftest/setup: relaxed
+"conftest.py" = ["D100", "D103"]
+"setup.py" = ["D100"]
+# Settings: allow hardcoded passwords (env-managed)
+"**/settings/**/*" = ["S105", "S106"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.pylint]
+max-args = 5
+max-branches = 12
+max-returns = 6
+max-statements = 50
+max-public-methods = 20
+max-locals = 15
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-wrap-aliases = true
+split-on-trailing-comma = true
+known-first-party = ["myapp"]  # ← change per project
+known-local-folder = ["src"]
+
+[tool.ruff.lint.flake8-annotations]
+allow-star-arg-any = true
+ignore-fully-untyped = true
+
+[tool.ruff.lint.flake8-bandit]
+check-typed-exception = true
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = [
+    "chr", "typer.Argument", "typer.Option",
+    "fastapi.Depends", "fastapi.Query", "fastapi.Header",
+]
+
+[tool.ruff.lint.flake8-builtins]
+builtins-ignorelist = ["id", "type", "filter", "format"]
+
+[tool.ruff.lint.flake8-comprehensions]
+allow-dict-calls-with-keyword-arguments = true
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+parametrize-names-type = "tuple"
+parametrize-values-type = "tuple"
+parametrize-values-row-type = "tuple"
+raises-require-match-for = [
+    "builtins.ValueError", "builtins.TypeError", "builtins.KeyError",
+]
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "double"
+multiline-quotes = "double"
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.flake8-type-checking]
+runtime-evaluated-base-classes = [
+    "pydantic.BaseModel", "sqlalchemy.orm.DeclarativeBase",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
